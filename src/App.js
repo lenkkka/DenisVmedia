@@ -150,6 +150,22 @@ function App() {
     setDarkMode(!darkMode);
     document.body.classList.toggle('dark-mode');
   };
+  
+  // Scroll to portfolio section when "View Portfolio" is clicked
+  const scrollToPortfolio = () => {
+    const portfolioSection = document.querySelector('.portfolio-section');
+    if (portfolioSection) {
+      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  // Scroll to contact section when "Contact Me" is clicked
+  const scrollToContact = () => {
+    const contactSection = document.querySelector('.contact-section');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Slider navigation
   const nextSlide = () => {
@@ -256,12 +272,23 @@ function App() {
         </button>
       </div>
 
-      <header className="hero">
+      <header className="hero hero-parallax">
+        <div className="hero-overlay"></div>
         <div className="hero-content">
-          <h1>Jane Doe</h1>
-          <h2>Cinematic Video Editor</h2>
-          <p>Crafting compelling visual stories with precision and creativity</p>
-          <button className="cta-button">Get in Touch</button>
+          <div className="hero-text-container">
+            <h1>Jane Doe</h1>
+            <h2>Cinematic Video Editor</h2>
+            <p>Transforming moments into cinematic experiences</p>
+            <div className="hero-buttons">
+              <button className="cta-button" onClick={scrollToPortfolio}>View Portfolio</button>
+              <button className="cta-button secondary" onClick={scrollToContact}>Contact Me</button>
+            </div>
+          </div>
+          <div className="hero-video-reel">
+            <div className="video-snippet">
+              <div className="play-icon-large">▶</div>
+            </div>
+          </div>
         </div>
       </header>
 
