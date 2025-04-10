@@ -137,11 +137,10 @@ function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentShort, setCurrentShort] = useState(3); // Center on index 3 (middle item)
   const [darkMode, setDarkMode] = useState(false);
-  const [visibleTestimonialCount, setVisibleTestimonialCount] = useState(3);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [bookingSubmitted, setBookingSubmitted] = useState(false);
   const sliderRef = useRef(null);
   const shortsSliderRef = useRef(null);
-  const testimonialRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
@@ -164,6 +163,14 @@ function App() {
     const contactSection = document.querySelector('.contact-section');
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  // Scroll to booking section when "Book a Consultation" is clicked
+  const scrollToBooking = () => {
+    const bookingSection = document.querySelector('.booking-section');
+    if (bookingSection) {
+      bookingSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -207,28 +214,6 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Infinite scroll for testimonials
-  useEffect(() => {
-    const handleScroll = () => {
-      if (testimonialRef.current) {
-        const bottom = testimonialRef.current.getBoundingClientRect().bottom;
-        const windowHeight = window.innerHeight;
-        
-        if (bottom <= windowHeight + 200 && visibleTestimonialCount < 18) {
-          // Load more testimonials when scrolling near the bottom
-          setVisibleTestimonialCount(prev => prev + 3);
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [visibleTestimonialCount]);
-
-  // Generate testimonials array with repeated items for infinite scroll
-  const infiniteTestimonials = Array(visibleTestimonialCount).fill(null).map((_, index) => {
-    return testimonials[index % testimonials.length];
-  });
 
   // Handle touch events for main slider
   const handleTouchStart = (e) => {
@@ -263,6 +248,23 @@ function App() {
       prevShort();
     }
   };
+  
+  // Handle booking form submission
+  const handleBookingSubmit = (e) => {
+    e.preventDefault();
+    
+    // In a real application, you would send the form data to a server here
+    // For demonstration purposes, we'll just show a success message
+    setBookingSubmitted(true);
+    
+    // Reset form (in a real application)
+    e.target.reset();
+    
+    // After 5 seconds, hide the success message
+    setTimeout(() => {
+      setBookingSubmitted(false);
+    }, 5000);
+  };
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
@@ -282,6 +284,7 @@ function App() {
             <div className="hero-buttons">
               <button className="cta-button" onClick={scrollToPortfolio}>View Portfolio</button>
               <button className="cta-button secondary" onClick={scrollToContact}>Contact Me</button>
+              <button className="cta-button accent" onClick={scrollToBooking}>Book Now</button>
             </div>
           </div>
           <div className="hero-video-reel">
@@ -463,12 +466,16 @@ function App() {
         </div>
       </section>
 
-      <section className="testimonials-section" ref={testimonialRef}>
+      <section className="testimonials-section">
         <div className="container">
           <h2>Client Testimonials</h2>
-          <div className="testimonials-infinite-scroll">
-            {infiniteTestimonials.map((testimonial, index) => (
-              <div className="testimonial-card" key={`${testimonial.id}-${index}`}>
+          <p className="section-subtitle">What my clients are saying</p>
+        </div>
+        <div className="testimonials-horizontal-scroll">
+          <div className="testimonials-track">
+            {/* First set of testimonials */}
+            {testimonials.map((testimonial) => (
+              <div className="testimonial-card" key={`original-${testimonial.id}`}>
                 <div className="testimonial-content">
                   <div className="testimonial-avatar">
                     <img src={testimonial.avatarUrl} alt={testimonial.author} />
@@ -483,11 +490,135 @@ function App() {
                 </div>
               </div>
             ))}
-            {visibleTestimonialCount < 18 && (
-              <div className="loading-more">
-                <div className="loading-spinner"></div>
-                <p>Loading more testimonials...</p>
+            
+            {/* Duplicate set for seamless loop */}
+            {testimonials.map((testimonial) => (
+              <div className="testimonial-card" key={`duplicate-${testimonial.id}`}>
+                <div className="testimonial-content">
+                  <div className="testimonial-avatar">
+                    <img src={testimonial.avatarUrl} alt={testimonial.author} />
+                  </div>
+                  <div className="testimonial-text">
+                    <p>"{testimonial.text}"</p>
+                    <div className="testimonial-author">
+                      <h4>{testimonial.author}</h4>
+                      <p>{testimonial.title}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="booking-section">
+        <div className="container">
+          <h2>Book a Consultation</h2>
+          <p className="section-subtitle">Let's discuss your project and how we can bring your vision to life</p>
+          <div className="booking-container">
+            <div className="booking-info">
+              <h3>How It Works</h3>
+              <ul className="booking-steps">
+                <li>
+                  <span className="step-number">1</span>
+                  <div className="step-content">
+                    <h4>Schedule a Call</h4>
+                    <p>Fill out the form with your project details and preferred contact time</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="step-number">2</span>
+                  <div className="step-content">
+                    <h4>Project Discussion</h4>
+                    <p>We'll discuss your vision, requirements, and timeline</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="step-number">3</span>
+                  <div className="step-content">
+                    <h4>Custom Proposal</h4>
+                    <p>Receive a tailored proposal with timeline and pricing options</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            {bookingSubmitted ? (
+              <div className="booking-success">
+                <div className="success-icon">✓</div>
+                <h3>Thank You!</h3>
+                <p>Your consultation request has been submitted successfully. I'll be in touch with you shortly to discuss your project in detail.</p>
+              </div>
+            ) : (
+              <form className="booking-form" onSubmit={handleBookingSubmit}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="name">Full Name</label>
+                    <input type="text" id="name" placeholder="Your name" required />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Email Address</label>
+                    <input type="email" id="email" placeholder="Your email" required />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Your phone number" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="project-type">Project Type</label>
+                    <select id="project-type" required defaultValue="">
+                      <option value="" disabled>Select project type</option>
+                      <option value="wedding">Wedding Video</option>
+                      <option value="corporate">Corporate Video</option>
+                      <option value="documentary">Documentary</option>
+                      <option value="music">Music Video</option>
+                      <option value="commercial">Commercial</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="project-details">Project Details</label>
+                  <textarea id="project-details" placeholder="Tell me more about your project" rows="4" required></textarea>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="budget">Budget Range</label>
+                    <select id="budget" defaultValue="">
+                      <option value="" disabled>Select budget range</option>
+                      <option value="under-1000">Under $1,000</option>
+                      <option value="1000-3000">$1,000 - $3,000</option>
+                      <option value="3000-5000">$3,000 - $5,000</option>
+                      <option value="5000-10000">$5,000 - $10,000</option>
+                      <option value="over-10000">Over $10,000</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="deadline">Project Deadline</label>
+                    <input type="date" id="deadline" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="preferred-time">Preferred Contact Time</label>
+                  <div className="time-slots">
+                    <div className="time-slot">
+                      <input type="radio" id="morning" name="contact-time" value="morning" />
+                      <label htmlFor="morning">Morning</label>
+                    </div>
+                    <div className="time-slot">
+                      <input type="radio" id="afternoon" name="contact-time" value="afternoon" />
+                      <label htmlFor="afternoon">Afternoon</label>
+                    </div>
+                    <div className="time-slot">
+                      <input type="radio" id="evening" name="contact-time" value="evening" />
+                      <label htmlFor="evening">Evening</label>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" className="booking-button">Schedule Consultation</button>
+              </form>
             )}
           </div>
         </div>
